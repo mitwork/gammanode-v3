@@ -12,7 +12,7 @@ info:
     email: cmalikz.h@gmail.com
 
 servers:
-  - url: http://localhost:14579/
+  - url: http://localhost:14589/
     description: Локальный сервер
 
 tags:

@@ -1,19 +1,19 @@
 package kz.ncanode.service;
 
-import kz.gov.pki.kalkan.asn1.ASN1Encodable;
-import kz.gov.pki.kalkan.asn1.ASN1EncodableVector;
-import kz.gov.pki.kalkan.asn1.DERSet;
-import kz.gov.pki.kalkan.asn1.cms.Attribute;
-import kz.gov.pki.kalkan.asn1.cms.AttributeTable;
-import kz.gov.pki.kalkan.asn1.pkcs.PKCSObjectIdentifiers;
-import kz.gov.pki.kalkan.jce.provider.KalkanProvider;
-import kz.gov.pki.kalkan.jce.provider.cms.CMSException;
-import kz.gov.pki.kalkan.jce.provider.cms.CMSSignedData;
-import kz.gov.pki.kalkan.jce.provider.cms.SignerInformation;
-import kz.gov.pki.kalkan.tsp.*;
+import kz.gamma.jce.provider.GammaTechProvider;
+import kz.gamma.asn1.DERSet;
+import kz.gamma.asn1.ASN1Encodable;
+import kz.gamma.asn1.ASN1EncodableVector;
+import kz.gamma.asn1.cms.Attribute;
+import kz.gamma.asn1.pkcs.PKCSObjectIdentifiers;
+import kz.gamma.asn1.cms.AttributeTable;
+import kz.gamma.cms.CMSException;
+import kz.gamma.cms.CMSSignedData;
+import kz.gamma.cms.SignerInformation;
+import kz.gamma.tsp.*;
 import kz.ncanode.configuration.TspConfiguration;
 import kz.ncanode.exception.TspException;
-import kz.ncanode.util.KalkanUtil;
+import kz.ncanode.util.GammaUtil;
 import kz.ncanode.util.Util;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -46,7 +46,7 @@ public class TspService {
     public TimeStampToken create(byte[] data, String hashAlg, String reqPolicy) {
         try {
             // Generate hash
-            MessageDigest md = MessageDigest.getInstance(hashAlg, KalkanProvider.PROVIDER_NAME);
+            MessageDigest md = MessageDigest.getInstance(hashAlg, GammaTechProvider.PROVIDER_NAME);
             md.update(data);
             byte[] hash = md.digest();
 
@@ -84,7 +84,7 @@ public class TspService {
         try {
             TimeStampToken tspt = new TimeStampToken(data);
             X509CertSelector signerConstraints = tspt.getSID();
-            CertStore certs = data.getCertificatesAndCRLs("Collection", KalkanProvider.PROVIDER_NAME);
+            CertStore certs = data.getCertificatesAndCRLs("Collection", GammaTechProvider.PROVIDER_NAME);
             Collection<?> certCollection = certs.getCertificates(signerConstraints);
             Iterator<?> certIt = certCollection.iterator();
 
@@ -93,7 +93,7 @@ public class TspService {
             }
 
             X509Certificate cert = (X509Certificate) certIt.next();
-            tspt.validate(cert, KalkanProvider.PROVIDER_NAME);
+            tspt.validate(cert, GammaTechProvider.PROVIDER_NAME);
 
             return Optional.of(tspt.getTimeStampInfo());
         } catch (TSPException | IOException | NoSuchProviderException | NoSuchAlgorithmException | CMSException | CertificateExpiredException | CertStoreException | CertificateNotYetValidException e) {
@@ -114,7 +114,7 @@ public class TspService {
             vector = unsignedAttributes.toASN1EncodableVector();
         }
 
-        TimeStampToken tsp = create(signer.getSignature(), KalkanUtil.getTspHashAlgorithmByOid(cert.getSigAlgOID()), useTsaPolicy);
+        TimeStampToken tsp = create(signer.getSignature(), GammaUtil.getTspHashAlgorithmByOid(cert.getSigAlgOID()), useTsaPolicy);
         byte[] ts = tsp.getEncoded();
         ASN1Encodable signatureTimeStamp = new Attribute(PKCSObjectIdentifiers.id_aa_signatureTimeStampToken, new DERSet(Util.byteToASN1(ts)));
         vector.add(signatureTimeStamp);

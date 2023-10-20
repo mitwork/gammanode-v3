@@ -1,0 +1,14 @@
+version: '3'
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    dns: 8.8.8.8
+    volumes:
+      - './build/libs:/www'
+      - './cache:/app/cache'
+    ports:
+      - '14589:14589'

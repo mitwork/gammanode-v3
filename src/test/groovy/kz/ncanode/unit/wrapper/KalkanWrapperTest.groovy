@@ -6,7 +6,7 @@ import kz.ncanode.dto.request.SignerRequest
 import kz.ncanode.exception.KeyException
 import kz.ncanode.exception.ServerException
 import kz.ncanode.util.KeyUtil
-import kz.ncanode.wrapper.KalkanWrapper
+import kz.ncanode.wrapper.GammaWrapper
 import kz.ncanode.wrapper.KeyStoreWrapper
 import org.mockito.MockedStatic
 import org.springframework.boot.test.context.SpringBootTest
@@ -21,7 +21,7 @@ import java.security.KeyStoreException
 import static org.mockito.Mockito.*
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.NONE)
-class KalkanWrapperTest extends Specification implements WithTestData {
+class GammaWrapperTest extends Specification implements WithTestData {
 
     @Shared
     final SignerRequest SIGNER_MOCK_REQUEST_1 = SignerRequest.builder()
@@ -38,12 +38,12 @@ class KalkanWrapperTest extends Specification implements WithTestData {
         .build()
 
     @SpyBean
-    private KalkanWrapper kalkanWrapper
+    private GammaWrapper gammaWrapper
 
     @Unroll('#caseName')
     def "read valid key"() {
         when: 'read key'
-        def key = kalkanWrapper.read(rawKey, keyAlias, password)
+        def key = gammaWrapper.read(rawKey, keyAlias, password)
 
         then: 'check key'
         key != null
@@ -80,8 +80,8 @@ class KalkanWrapperTest extends Specification implements WithTestData {
         def keyStoreWrapper1 = mock(KeyStoreWrapper)
         def keyStoreWrapper2 = mock(KeyStoreWrapper)
 
-        doReturn(keyStoreWrapper1).when(kalkanWrapper).read(SIGNER_MOCK_REQUEST_1.getKey(), SIGNER_MOCK_REQUEST_1.getKeyAlias(), SIGNER_MOCK_REQUEST_1.getPassword())
-        doReturn(keyStoreWrapper2).when(kalkanWrapper).read(SIGNER_MOCK_REQUEST_2.getKey(), SIGNER_MOCK_REQUEST_2.getKeyAlias(), SIGNER_MOCK_REQUEST_2.getPassword())
+        doReturn(keyStoreWrapper1).when(gammaWrapper).read(SIGNER_MOCK_REQUEST_1.getKey(), SIGNER_MOCK_REQUEST_1.getKeyAlias(), SIGNER_MOCK_REQUEST_1.getPassword())
+        doReturn(keyStoreWrapper2).when(gammaWrapper).read(SIGNER_MOCK_REQUEST_2.getKey(), SIGNER_MOCK_REQUEST_2.getKeyAlias(), SIGNER_MOCK_REQUEST_2.getPassword())
 
         def signerRequests = [
             SIGNER_MOCK_REQUEST_1,
@@ -101,9 +101,9 @@ class KalkanWrapperTest extends Specification implements WithTestData {
     def "check KeystoreException thrown in read()"() {
         when:
         try(MockedStatic<KeyStore> ks = mockStatic(KeyStore)) {
-            ks.when(() -> KeyStore.getInstance("PKCS12", kalkanWrapper.getKalkanProvider())).thenThrow(new KeyStoreException())
+            ks.when(() -> KeyStore.getInstance("PKCS12", gammaWrapper.getGammaProvider())).thenThrow(new KeyStoreException())
 
-            kalkanWrapper.read("", "", "")
+            gammaWrapper.read("", "", "")
         }
 
         then:
@@ -113,11 +113,11 @@ class KalkanWrapperTest extends Specification implements WithTestData {
 
     def "check if aliases empty"() {
         when:
-        def keystoreWrapper = kalkanWrapper.read(KEY_INDIVIDUAL_VALID_2015, null, KEY_INDIVIDUAL_VALID_2015_PASSWORD)
+        def keystoreWrapper = gammaWrapper.read(KEY_INDIVIDUAL_VALID_2015, null, KEY_INDIVIDUAL_VALID_2015_PASSWORD)
 
         try(MockedStatic<KeyUtil> ks = mockStatic(KeyUtil)) {
             ks.when(() -> KeyUtil.getAliases(keystoreWrapper.getKeyStore())).thenReturn(Collections.emptyList())
-            kalkanWrapper.read(KEY_INDIVIDUAL_VALID_2015, null, KEY_INDIVIDUAL_VALID_2015_PASSWORD)
+            gammaWrapper.read(KEY_INDIVIDUAL_VALID_2015, null, KEY_INDIVIDUAL_VALID_2015_PASSWORD)
         }
 
         then:
@@ -127,12 +127,12 @@ class KalkanWrapperTest extends Specification implements WithTestData {
 
     def "check KeyException for tryReadKey()"() {
         given:
-        def kalkanWrapperSpy = spy(kalkanWrapper)
-        doThrow(KeyException).when(kalkanWrapperSpy).read(anyString(), any(), anyString())
+        def gammaWrapperSpy = spy(gammaWrapper)
+        doThrow(KeyException).when(gammaWrapperSpy).read(anyString(), any(), anyString())
         List<SignerRequest> signers = [new SignerRequest(KEY_INDIVIDUAL_VALID_2015, KEY_INDIVIDUAL_VALID_2015_PASSWORD, null, null)]
 
         when:
-        kalkanWrapperSpy.read(signers)
+        gammaWrapperSpy.read(signers)
 
         then:
         def e = thrown(ServerException)

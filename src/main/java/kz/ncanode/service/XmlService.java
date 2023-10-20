@@ -29,7 +29,7 @@ import java.util.*;
 @Service
 @RequiredArgsConstructor
 public class XmlService {
-    private final KalkanWrapper kalkanWrapper;
+    private final GammaWrapper gammaWrapper;
     private final CertificateService certificateService;
 
     /**
@@ -69,7 +69,7 @@ public class XmlService {
 
         int i = 0;
 
-        for (KeyStoreWrapper keyStore : kalkanWrapper.read(xmlSignRequest.getSigners())) {
+        for (KeyStoreWrapper keyStore : gammaWrapper.read(xmlSignRequest.getSigners())) {
             document.createXmlSignature(keyStore.getCertificate(), xmlSignRequest.getSigners().get(i++).getReferenceUri())
                 .sign(keyStore.getPrivateKey());
         }

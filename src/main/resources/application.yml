@@ -2,10 +2,10 @@ spring:
   main:
     banner-mode: off
 server:
-  port: ${NCANODE_PORT:14579}
+  port: ${NCANODE_PORT:14589}
 ncanode:
   system:
-    detailedErrors: ${NCANODE_DEBUG:false}
+    detailedErrors: ${NCANODE_DEBUG:true}
     cacheDir: ${NCANODE_CACHE_DIR:./cache}
   crl:
     enabled: ${NCANODE_CRL_ENABLED:true}
@@ -24,7 +24,7 @@ ncanode:
   ocsp:
     url: ${NCANODE_OCSP_URL:http://ocsp.pki.gov.kz/}
   ca:
-    url: ${NCANODE_CA_URL:https://pki.gov.kz/cert/nca_rsa.crt https://pki.gov.kz/cert/nca_gost.crt https://pki.gov.kz/cert/root_gost_2022.cer https://pki.gov.kz/cert/nca_gost_2022.cer}
+    url: ${NCANODE_CA_URL:https://pki.gov.kz/cert/nca_rsa.crt https://pki.gov.kz/cert/nca_gost.crt https://pki.gov.kz/cert/root_gost_2022.cer https://pki.gov.kz/cert/nca_gost_2022.cer file://resources/ca/ROOT_GOST.cer file://resources/ca/ROOT_RSA.cer}
     ttl: ${NCANODE_CA_TTL:1440}
     crl:
       enabled: ${NCANODE_CA_CRL_ENABLED:true}

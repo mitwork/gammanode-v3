@@ -1,12 +1,12 @@
 package kz.ncanode.service;
 
-import kz.gov.pki.kalkan.asn1.cms.Attribute;
-import kz.gov.pki.kalkan.asn1.pkcs.PKCSObjectIdentifiers;
-import kz.gov.pki.kalkan.jce.provider.KalkanProvider;
-import kz.gov.pki.kalkan.jce.provider.cms.*;
-import kz.gov.pki.kalkan.tsp.TimeStampTokenInfo;
+import kz.gamma.jce.provider.GammaTechProvider;
+import kz.gamma.asn1.cms.Attribute;
+import kz.gamma.asn1.pkcs.PKCSObjectIdentifiers;
+import kz.gamma.cms.*;
 import kz.gov.pki.kalkan.util.encoders.Hex;
 import kz.ncanode.dto.cms.CmsSignerInfo;
+import kz.gamma.tsp.TimeStampTokenInfo;
 import kz.ncanode.dto.request.CmsCreateRequest;
 import kz.ncanode.dto.request.SignerRequest;
 import kz.ncanode.dto.response.CmsDataResponse;
@@ -16,10 +16,10 @@ import kz.ncanode.dto.tsp.TsaPolicy;
 import kz.ncanode.dto.tsp.TspInfo;
 import kz.ncanode.exception.ClientException;
 import kz.ncanode.exception.ServerException;
-import kz.ncanode.util.KalkanUtil;
+import kz.ncanode.util.GammaUtil;
 import kz.ncanode.util.Util;
 import kz.ncanode.wrapper.CertificateWrapper;
-import kz.ncanode.wrapper.KalkanWrapper;
+import kz.ncanode.wrapper.GammaWrapper;
 import kz.ncanode.wrapper.KeyStoreWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 @Service
 public class CmsService {
 
-    private final KalkanWrapper kalkanWrapper;
+    private final GammaWrapper gammaWrapper;
     private final TspService tspService;
     private final  CertificateService certificateService;
 
@@ -68,11 +68,11 @@ public class CmsService {
                     // добавим в chainStore только уникальные сертификаты.
                     certificates
                 ),
-                KalkanProvider.PROVIDER_NAME
+                GammaTechProvider.PROVIDER_NAME
             );
 
             generator.addCertificatesAndCRLs(chainStore);
-            CMSSignedData signed = generator.generate(cmsData, !cmsCreateRequest.isDetached(), KalkanProvider.PROVIDER_NAME);
+            CMSSignedData signed = generator.generate(cmsData, !cmsCreateRequest.isDetached(), GammaTechProvider.PROVIDER_NAME);
 
             // TSP
             if (cmsCreateRequest.isWithTsp()) {
@@ -146,10 +146,10 @@ public class CmsService {
                 new CollectionCertStoreParameters(
                     certificates.stream().distinct().collect(Collectors.toList())
                 ),
-                KalkanProvider.PROVIDER_NAME
+                GammaTechProvider.PROVIDER_NAME
             );
             generator.addCertificatesAndCRLs(chainStore);
-            CMSSignedData signed = generator.generate(cmsData, !cmsCreateRequest.isDetached(), KalkanProvider.PROVIDER_NAME);
+            CMSSignedData signed = generator.generate(cmsData, !cmsCreateRequest.isDetached(), GammaTechProvider.PROVIDER_NAME);
 
             // TSP
             if (cmsCreateRequest.isWithTsp()) {
@@ -209,13 +209,17 @@ public class CmsService {
     public CmsVerificationResponse verify(String signedCms, String detachedData, boolean checkOcsp, boolean checkCrl) {
         try {
             CMSSignedData cms = new CMSSignedData(Base64.getDecoder().decode(signedCms.getBytes(StandardCharsets.UTF_8)));
+            byte[] data = null;
 
             if (detachedData != null && cms.getSignedContent() == null) {
                 cms = new CMSSignedData(new CMSProcessableByteArray(Base64.getDecoder().decode(detachedData)),
                     Base64.getDecoder().decode(signedCms));
+                data = Base64.getDecoder().decode(detachedData);
             }
 
-            CertStore certStore = cms.getCertificatesAndCRLs("Collection", KalkanProvider.PROVIDER_NAME);
+
+
+            CertStore certStore = cms.getCertificatesAndCRLs("Collection", GammaTechProvider.PROVIDER_NAME);
             val signerIt = cms.getSignerInfos().getSigners().iterator();
 
             final List<CmsSignerInfo> signers = new ArrayList<>();
@@ -223,6 +227,8 @@ public class CmsService {
             boolean valid = true;
 
             val currentDate = certificateService.getCurrentDate();
+
+            Signature sgn = Signature.getInstance("ECGOST34310", GammaTechProvider.PROVIDER_NAME);
 
             while (signerIt.hasNext()) {
                 var signerInfoBuilder = CmsSignerInfo.builder();
@@ -238,7 +244,17 @@ public class CmsService {
 
                     certificateService.attachValidationData(cert, checkOcsp, checkCrl);
 
-                    if (!signer.verify(cert.getPublicKey(), KalkanProvider.PROVIDER_NAME) || !cert.isValid(currentDate, checkOcsp, checkCrl)) {
+                    if (data != null && data.length > 0) {
+
+                        sgn.initVerify(cert.getPublicKey());
+                        sgn.update(data);
+
+                        if (!sgn.verify(cms.getEncoded())) {
+                            valid = false;
+                        }
+                    }
+
+                    if (valid && (!signer.verify(cert.getPublicKey(), GammaTechProvider.PROVIDER_NAME) || !cert.isValid(currentDate, checkOcsp, checkCrl))) {
                         valid = false;
                     }
 
@@ -272,7 +288,7 @@ public class CmsService {
                                 .genTime(tspi.getGenTime())
                                 .policy(tspi.getPolicy())
                                 .tsa(Optional.ofNullable(tspi.getTsa()).map(Object::toString).orElse(null))
-                                .tspHashAlgorithm(KalkanUtil.getHashingAlgorithmByOID(tspi.getMessageImprintAlgOID()))
+                                .tspHashAlgorithm(GammaUtil.getHashingAlgorithmByOID(tspi.getMessageImprintAlgOID()))
                                 .hash(new String(Hex.encode(tspi.getMessageImprintDigest())))
                                 .build();
 
@@ -329,7 +345,7 @@ public class CmsService {
     {
         List<X509Certificate> certs = new ArrayList<>();
         SignerInformationStore signers = cms.getSignerInfos();
-        CertStore clientCerts = cms.getCertificatesAndCRLs("Collection", KalkanProvider.PROVIDER_NAME);
+        CertStore clientCerts = cms.getCertificatesAndCRLs("Collection", GammaTechProvider.PROVIDER_NAME);
 
         for (var signerObj : signers.getSigners()) {
             SignerInformation signer = (SignerInformation) signerObj;
@@ -347,11 +363,11 @@ public class CmsService {
 
     private void addSignersToCmsGenerator(CMSSignedDataGenerator generator, byte[] decodedData, List<X509Certificate> certificates, List<SignerRequest> signers) {
         try {
-            for (KeyStoreWrapper ks : kalkanWrapper.read(signers)) {
+            for (KeyStoreWrapper ks : gammaWrapper.read(signers)) {
                 CertificateWrapper cert = ks.getCertificate();
                 val privateKey = ks.getPrivateKey();
 
-                Signature sig = Signature.getInstance(cert.getX509Certificate().getSigAlgName(), kalkanWrapper.getKalkanProvider());
+                Signature sig = Signature.getInstance(cert.getX509Certificate().getSigAlgName(), gammaWrapper.getGammaProvider());
                 sig.initSign(privateKey);
                 sig.update(decodedData);
 

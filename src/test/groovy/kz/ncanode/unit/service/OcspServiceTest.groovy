@@ -4,7 +4,7 @@ import kz.ncanode.common.WithTestData
 import kz.ncanode.dto.ocsp.OcspResult
 import kz.ncanode.service.OcspService
 import kz.ncanode.wrapper.CertificateWrapper
-import kz.ncanode.wrapper.KalkanWrapper
+import kz.ncanode.wrapper.GammaWrapper
 import org.apache.http.client.methods.HttpUriRequest
 import org.apache.http.impl.client.CloseableHttpClient
 import org.springframework.beans.factory.annotation.Autowired
@@ -35,7 +35,7 @@ class OcspServiceTest extends Specification implements WithTestData {
     private static byte[] OCSP_INVALID_NONCE = [-1, 2, -3, 4, -5, 6, -7, 8]
 
     @Autowired
-    KalkanWrapper kalkanWrapper
+    GammaWrapper gammaWrapper
 
     @SpyBean
     OcspService ocspService
@@ -50,7 +50,7 @@ class OcspServiceTest extends Specification implements WithTestData {
         doReturn(createMockedResponse(ocspInputStream)).when(client).execute(any(HttpUriRequest))
         doReturn(ocspNonce).when(ocspService).generateOcspNonce()
 
-        def key = kalkanWrapper.read(keyFile, null, password)
+        def key = gammaWrapper.read(keyFile, null, password)
         def nca = CertificateWrapper.fromBase64(ca)
 
         when:

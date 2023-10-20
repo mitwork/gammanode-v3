@@ -3,7 +3,7 @@ package kz.ncanode.unit.service
 import kz.ncanode.common.WithTestData
 import kz.ncanode.service.CaService
 import kz.ncanode.wrapper.CertificateWrapper
-import kz.ncanode.wrapper.KalkanWrapper
+import kz.ncanode.wrapper.GammaWrapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.mock.mockito.SpyBean
@@ -40,7 +40,7 @@ class CaServiceTest extends Specification implements WithTestData {
     CaService caService
 
     @Autowired
-    KalkanWrapper kalkanWrapper
+    GammaWrapper gammaWrapper
 
     def setupSpec() {
         initializeKalkanLibrary()
@@ -74,7 +74,7 @@ class CaServiceTest extends Specification implements WithTestData {
         def rootCert = NCA_GOST2015()
         doReturn([NCA_GOST(), NCA_RSA(), rootCert]).when(caService).getRootCertificates()
 
-        def cert = kalkanWrapper.read(KEY_INDIVIDUAL_VALID_2015, KEY_INDIVIDUAL_VALID_2015_ALIAS, KEY_INDIVIDUAL_VALID_2015_PASSWORD).getCertificate()
+        def cert = gammaWrapper.read(KEY_INDIVIDUAL_VALID_2015, KEY_INDIVIDUAL_VALID_2015_ALIAS, KEY_INDIVIDUAL_VALID_2015_PASSWORD).getCertificate()
 
         when:
         def result = caService.getRootCertificateFor(cert)

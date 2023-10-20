@@ -1,6 +1,6 @@
 package kz.ncanode.common
 
-import kz.gov.pki.kalkan.jce.provider.KalkanProvider
+import kz.gamma.jce.provider.GammaTechProvider
 import kz.gov.pki.kalkan.xmldsig.KncaXS
 import kz.ncanode.constants.MessageConstants
 import org.apache.http.HttpEntity
@@ -101,7 +101,7 @@ interface WithTestData {
     }
 
     default void initializeKalkanLibrary() {
-        Security.addProvider(new KalkanProvider());
+        Security.addProvider(new GammaTechProvider());
         KncaXS.loadXMLSecurity();
     }
 }

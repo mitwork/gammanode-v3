@@ -1,6 +1,6 @@
 package kz.ncanode.wrapper;
 
-import kz.gov.pki.kalkan.jce.provider.KalkanProvider;
+import kz.gamma.jce.provider.GammaTechProvider;
 import kz.ncanode.constants.MessageConstants;
 import kz.ncanode.dto.request.SignerRequest;
 import kz.ncanode.exception.KeyException;
@@ -25,9 +25,9 @@ import java.util.stream.IntStream;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class KalkanWrapper {
+public class GammaWrapper {
     @Getter
-    private final KalkanProvider kalkanProvider;
+    private final GammaTechProvider gammaProvider;
 
     /**
      * Читает ключ P12.
@@ -42,7 +42,7 @@ public class KalkanWrapper {
         KeyStore store;
 
         try {
-            store = KeyStore.getInstance("PKCS12", kalkanProvider);
+            store = KeyStore.getInstance("PKCS12", gammaProvider);
         } catch (KeyStoreException e) {
             log.error(MessageConstants.KEY_ENGINE_ERROR, e);
             throw new KeyException(MessageConstants.KEY_ENGINE_ERROR, e);

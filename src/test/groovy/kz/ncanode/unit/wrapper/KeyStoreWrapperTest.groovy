@@ -3,7 +3,7 @@ package kz.ncanode.unit.wrapper
 import kz.ncanode.common.WithTestData
 import kz.ncanode.constants.MessageConstants
 import kz.ncanode.exception.ServerException
-import kz.ncanode.wrapper.KalkanWrapper
+import kz.ncanode.wrapper.GammaWrapper
 import kz.ncanode.wrapper.KeyStoreWrapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -23,7 +23,7 @@ import static org.mockito.Mockito.*
 class KeyStoreWrapperTest extends Specification implements WithTestData {
 
     @Autowired
-    private KalkanWrapper kalkanWrapper
+    private GammaWrapper gammaWrapper
 
     @Unroll("#caseName")
     def "test valid getPrivateKey"() {
@@ -100,10 +100,10 @@ class KeyStoreWrapperTest extends Specification implements WithTestData {
     }
 
     private KeyStoreWrapper createKeyStore2015() {
-        return kalkanWrapper.read(KEY_INDIVIDUAL_VALID_2015,  KEY_INDIVIDUAL_VALID_2015_ALIAS, KEY_INDIVIDUAL_VALID_2015_PASSWORD)
+        return gammaWrapper.read(KEY_INDIVIDUAL_VALID_2015,  KEY_INDIVIDUAL_VALID_2015_ALIAS, KEY_INDIVIDUAL_VALID_2015_PASSWORD)
     }
 
     private KeyStoreWrapper createKeyStore2004Sign() {
-        return kalkanWrapper.read(KEY_INDIVIDUAL_VALID_SIGN_2004, KEY_INDIVIDUAL_VALID_SIGN_2004_ALIAS, KEY_INDIVIDUAL_VALID_SIGN_2004_PASSWORD)
+        return gammaWrapper.read(KEY_INDIVIDUAL_VALID_SIGN_2004, KEY_INDIVIDUAL_VALID_SIGN_2004_ALIAS, KEY_INDIVIDUAL_VALID_SIGN_2004_PASSWORD)
     }
 }

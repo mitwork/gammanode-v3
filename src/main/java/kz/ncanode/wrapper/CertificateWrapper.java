@@ -1,14 +1,14 @@
 package kz.ncanode.wrapper;
 
+import kz.gamma.jce.provider.GammaTechProvider;
 import kz.gov.pki.kalkan.asn1.DERIA5String;
 import kz.gov.pki.kalkan.asn1.x509.*;
-import kz.gov.pki.kalkan.jce.provider.KalkanProvider;
 import kz.gov.pki.kalkan.x509.extension.X509ExtensionUtil;
 import kz.ncanode.dto.certificate.*;
 import kz.ncanode.dto.crl.CrlResult;
 import kz.ncanode.dto.crl.CrlStatus;
 import kz.ncanode.dto.ocsp.OcspStatus;
-import kz.ncanode.util.KalkanUtil;
+import kz.ncanode.util.GammaUtil;
 import kz.ncanode.util.Util;
 import lombok.Getter;
 import lombok.Setter;
@@ -53,7 +53,7 @@ public class CertificateWrapper {
     public CertificateWrapper(X509Certificate certificate) {
         Objects.requireNonNull(certificate);
         x509Certificate = certificate;
-        signAlg = KalkanUtil.getSignMethodByOID(x509Certificate.getSigAlgOID());
+        signAlg = GammaUtil.getSignMethodByOID(x509Certificate.getSigAlgOID());
     }
 
     /**
@@ -220,7 +220,7 @@ public class CertificateWrapper {
 
     public static Optional<CertificateWrapper> fromInputStream(final InputStream inputStream) {
         try {
-            return Optional.of(new CertificateWrapper((X509Certificate) CertificateFactory.getInstance("X.509", KalkanProvider.PROVIDER_NAME).generateCertificate(inputStream)));
+            return Optional.of(new CertificateWrapper((X509Certificate) CertificateFactory.getInstance("X.509", GammaTechProvider.PROVIDER_NAME).generateCertificate(inputStream)));
         } catch (CertificateException|NoSuchProviderException e) {
             return Optional.empty();
         }

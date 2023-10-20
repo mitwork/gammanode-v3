@@ -1,6 +1,6 @@
 package kz.ncanode.service;
 
-import kz.gov.pki.kalkan.jce.provider.KalkanProvider;
+import kz.gamma.jce.provider.GammaTechProvider;
 import kz.ncanode.constants.MessageConstants;
 import kz.ncanode.dto.certificate.CertificateInfo;
 import kz.ncanode.dto.certificate.CertificateRevocation;
@@ -8,7 +8,7 @@ import kz.ncanode.dto.request.Pkcs12InfoRequest;
 import kz.ncanode.dto.response.VerificationResponse;
 import kz.ncanode.exception.ServerException;
 import kz.ncanode.wrapper.CertificateWrapper;
-import kz.ncanode.wrapper.KalkanWrapper;
+import kz.ncanode.wrapper.GammaWrapper;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ public class CertificateService {
     public final CrlService crlService;
     public final OcspService ocspService;
     public final CaService caService;
-    public final KalkanWrapper kalkanWrapper;
+    public final GammaWrapper gammaWrapper;
 
     public void attachValidationData(final CertificateWrapper cert, boolean checkOcsp, boolean checkCrl) {
         cert.setIssuerCertificate(caService.getRootCertificateFor(cert).orElse(null));
@@ -44,7 +44,7 @@ public class CertificateService {
         val withOcsp = request.getRevocationCheck().contains(CertificateRevocation.OCSP);
         val withCrl = request.getRevocationCheck().contains(CertificateRevocation.CRL);
 
-        val keys = Optional.of(request.getKeys()).map(kalkanWrapper::read).orElseThrow();
+        val keys = Optional.of(request.getKeys()).map(gammaWrapper::read).orElseThrow();
         val certs = new ArrayList<CertificateInfo>();
 
         for (var key : keys) {
@@ -113,7 +113,7 @@ public class CertificateService {
 
     public static X509Certificate load(byte[] cert) throws CertificateException, NoSuchProviderException, IOException {
         try (ByteArrayInputStream stream = new ByteArrayInputStream(cert)) {
-            return (X509Certificate)java.security.cert.CertificateFactory.getInstance("X.509", KalkanProvider.PROVIDER_NAME).generateCertificate(stream);
+            return (X509Certificate)java.security.cert.CertificateFactory.getInstance("X.509", GammaTechProvider.PROVIDER_NAME).generateCertificate(stream);
         }
     }
 }

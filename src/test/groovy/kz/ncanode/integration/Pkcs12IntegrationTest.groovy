@@ -8,7 +8,7 @@ import kz.ncanode.dto.request.SignerRequest
 import kz.ncanode.dto.response.Pkcs12AliasesResponse
 import kz.ncanode.dto.response.VerificationResponse
 import kz.ncanode.service.CertificateService
-import kz.ncanode.wrapper.KalkanWrapper
+import kz.ncanode.wrapper.GammaWrapper
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 
@@ -23,10 +23,10 @@ class Pkcs12IntegrationTest extends IntegrationSpecification {
     CertificateService certificateService
 
     @Autowired
-    KalkanWrapper kalkanWrapper
+    GammaWrapper gammaWrapper
 
     def setup() {
-        configureMockMvc(new Pkcs12Controller(certificateService, kalkanWrapper))
+        configureMockMvc(new Pkcs12Controller(certificateService, gammaWrapper))
     }
 
     def "test pkcs12 info"() {

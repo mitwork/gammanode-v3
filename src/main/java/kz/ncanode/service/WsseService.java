@@ -7,7 +7,7 @@ import kz.ncanode.exception.ClientException;
 import kz.ncanode.exception.KeyException;
 import kz.ncanode.exception.ServerException;
 import kz.ncanode.wrapper.CertificateWrapper;
-import kz.ncanode.wrapper.KalkanWrapper;
+import kz.ncanode.wrapper.GammaWrapper;
 import kz.ncanode.wrapper.KeyStoreWrapper;
 import kz.ncanode.wrapper.XMLSignatureWrapper;
 import lombok.RequiredArgsConstructor;
@@ -48,7 +48,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class WsseService {
 
-    private final KalkanWrapper kalkanWrapper;
+    private final GammaWrapper gammaWrapper;
     private final XmlService xmlService;
     private final CertificateService certificateService;
 
@@ -61,7 +61,7 @@ public class WsseService {
     public XmlSignResponse sign(final WsseSignRequest wsseSignRequest) {
         try {
             // read key
-            final KeyStoreWrapper keystore = kalkanWrapper.read(wsseSignRequest.getKey(), wsseSignRequest.getKeyAlias(), wsseSignRequest.getPassword());
+            final KeyStoreWrapper keystore = gammaWrapper.read(wsseSignRequest.getKey(), wsseSignRequest.getKeyAlias(), wsseSignRequest.getPassword());
             final CertificateWrapper cert = keystore.getCertificate();
 
             // sign a soap request according to a reference implementation from smartbridge

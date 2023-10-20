@@ -1,8 +1,8 @@
 package kz.ncanode.util;
 
 import kz.gov.pki.kalkan.asn1.pkcs.PKCSObjectIdentifiers;
-import kz.gov.pki.kalkan.jce.provider.cms.CMSSignedDataGenerator;
-import kz.gov.pki.kalkan.tsp.TSPAlgorithms;
+import kz.gamma.cms.CMSSignedDataGenerator;
+import kz.gamma.tsp.TSPAlgorithms;
 import lombok.experimental.UtilityClass;
 import org.apache.xml.security.encryption.XMLCipherParameters;
 import org.apache.xml.security.utils.Constants;
@@ -10,10 +10,10 @@ import org.apache.xml.security.utils.Constants;
 import java.util.HashMap;
 
 /**
- * Вспомогательные методы для работы с KalkanCrypt
+ * Вспомогательные методы для работы с Gamma
  */
 @UtilityClass
-public class KalkanUtil {
+public class GammaUtil {
     public final static String GOST3410_256_2015 = "1.2.398.3.10.1.1.2.3.1";
     public final static String GOST3410_512_2015 = "1.2.398.3.10.1.1.2.3.2";
 
@@ -27,18 +27,12 @@ public class KalkanUtil {
 
         String[] ret = new String[2];
 
-        if (oid.equals(PKCSObjectIdentifiers.sha1WithRSAEncryption.getId())) {
+        if (oid.equals(kz.gamma.asn1.pkcs.PKCSObjectIdentifiers.sha1WithRSAEncryption.getId())) {
             ret[0] = Constants.MoreAlgorithmsSpecNS + "rsa-sha1";
             ret[1] = Constants.MoreAlgorithmsSpecNS + "sha1";
-        } else if (oid.equals(PKCSObjectIdentifiers.sha256WithRSAEncryption.getId())) {
+        } else if (oid.equals(kz.gamma.asn1.pkcs.PKCSObjectIdentifiers.sha256WithRSAEncryption.getId())) {
             ret[0] = Constants.MoreAlgorithmsSpecNS + "rsa-sha256";
             ret[1] = XMLCipherParameters.SHA256;
-        } else if (oid.equals(GOST3410_512_2015)) { // GOST3410-2015 512
-            ret[0] = "urn:ietf:params:xml:ns:pkigovkz:xmlsec:algorithms:gostr34102015-gostr34112015-512";
-            ret[1] = "urn:ietf:params:xml:ns:pkigovkz:xmlsec:algorithms:gostr34112015-512";
-        } else if (oid.equals(GOST3410_256_2015)) { // GOST3410-2015 256
-            ret[0] = "urn:ietf:params:xml:ns:pkigovkz:xmlsec:algorithms:gostr34102015-gostr34112015-256";
-            ret[1] = "urn:ietf:params:xml:ns:pkigovkz:xmlsec:algorithms:gostr34112015-256";
         } else {
             ret[0] = Constants.MoreAlgorithmsSpecNS + "gost34310-gost34311";
             ret[1] = Constants.MoreAlgorithmsSpecNS + "gost34311";
@@ -56,10 +50,8 @@ public class KalkanUtil {
     public static String getDigestAlgorithmOidBYSignAlgorithmOid(String signOid) {
         if (signOid.equals(PKCSObjectIdentifiers.sha1WithRSAEncryption.getId())) {
             return CMSSignedDataGenerator.DIGEST_SHA1;
-        } else if (signOid.equals(PKCSObjectIdentifiers.sha256WithRSAEncryption.getId())) {
-            return CMSSignedDataGenerator.DIGEST_SHA256;
         } else {
-            return CMSSignedDataGenerator.DIGEST_GOST34311_95;
+            return CMSSignedDataGenerator.DIGEST_GOST3411G;
         }
     }
 
@@ -70,14 +62,14 @@ public class KalkanUtil {
      * @return Algorithm name
      */
     public static String getTspHashAlgorithmByOid(String signOid) {
-        if (signOid.equals(PKCSObjectIdentifiers.sha1WithRSAEncryption.getId())) {
+        if (signOid.equals(kz.gamma.asn1.pkcs.PKCSObjectIdentifiers.sha1WithRSAEncryption.getId())) {
             return TSPAlgorithms.SHA1;
         }
-        else if (signOid.equals(PKCSObjectIdentifiers.sha256WithRSAEncryption.getId())) {
+        else if (signOid.equals(kz.gamma.asn1.pkcs.PKCSObjectIdentifiers.sha256WithRSAEncryption.getId())) {
             return TSPAlgorithms.SHA256;
         }
         else {
-            return TSPAlgorithms.GOST34311;
+            return TSPAlgorithms.GOST3411;
         }
     }
 
@@ -93,8 +85,7 @@ public class KalkanUtil {
         algos.put(TSPAlgorithms.RIPEMD128,"RIPEMD128");
         algos.put(TSPAlgorithms.RIPEMD160,"RIPEMD160");
         algos.put(TSPAlgorithms.RIPEMD256,"RIPEMD256");
-        algos.put(TSPAlgorithms.GOST34311GT,"GOST34311GT");
-        algos.put(TSPAlgorithms.GOST34311,"GOST34311");
+        algos.put(TSPAlgorithms.GOST3411,"GOST3411");
 
         return algos.get(oid);
     }

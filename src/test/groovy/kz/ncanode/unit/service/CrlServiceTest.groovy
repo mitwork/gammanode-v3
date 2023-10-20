@@ -4,7 +4,7 @@ import kz.ncanode.common.WithTestData
 import kz.ncanode.dto.crl.CrlResult
 import kz.ncanode.service.CrlService
 import kz.ncanode.util.Util
-import kz.ncanode.wrapper.KalkanWrapper
+import kz.ncanode.wrapper.GammaWrapper
 import org.apache.http.impl.client.CloseableHttpClient
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
@@ -24,7 +24,7 @@ import static org.mockito.Mockito.*
 class CrlServiceTest extends Specification implements WithTestData {
 
     @Autowired
-    KalkanWrapper kalkanWrapper
+    GammaWrapper gammaWrapper
 
     @MockBean
     CloseableHttpClient httpClient
@@ -53,7 +53,7 @@ class CrlServiceTest extends Specification implements WithTestData {
         doNothing().when(crlService).downloadCrl(anyString(), isNotNull())
         doReturn(crlFileMock).when(crlService).getCrlCacheFilePathFor(anyString(), any(URL))
 
-        def key = kalkanWrapper.read(keyStr, null, KEY_INDIVIDUAL_VALID_SIGN_2004_PASSWORD)
+        def key = gammaWrapper.read(keyStr, null, KEY_INDIVIDUAL_VALID_SIGN_2004_PASSWORD)
 
         when: 'verify cert'
         def status = crlService.verify(key.getCertificate())
@@ -86,7 +86,7 @@ class CrlServiceTest extends Specification implements WithTestData {
             downloadedCrls.put(Util.sha1(url.toString()), CRLS.get(url.toString()))
         }).when(crlService).downloadCrl(anyString(), isNotNull())
 
-        def key = kalkanWrapper.read(keyStr, null, KEY_INDIVIDUAL_VALID_2015_PASSWORD)
+        def key = gammaWrapper.read(keyStr, null, KEY_INDIVIDUAL_VALID_2015_PASSWORD)
 
         when:
         def status = crlService.verify(key.getCertificate())

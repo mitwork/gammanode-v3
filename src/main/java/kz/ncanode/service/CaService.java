@@ -14,6 +14,7 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -71,11 +73,16 @@ public class CaService {
                 log.info("Updating CA certificates cache...");
 
                 for (var urlEntry : urls.entrySet()) {
+
                     File caFile = new File(directoryService.getCachePathFor(CA_CACHE_DIR_NAME).orElseThrow(), urlEntry.getKey() + CA_FILE_EXTENSION);
                     CertificateWrapper cert;
 
                     if (force || !caFile.exists() || !caFile.canRead()) {
-                        cert = downloadCert(urlEntry.getValue(), caFile);
+                        if (urlEntry.getValue().toString().startsWith("file://")) {
+                            cert = importCert(urlEntry.getValue().toString(), caFile);
+                        } else {
+                            cert = downloadCert(urlEntry.getValue(), caFile);
+                        }
                     } else {
                         cert = CertificateWrapper.fromFile(caFile).orElseThrow();
                     }
@@ -98,6 +105,32 @@ public class CaService {
             log.info("Downloading CA file: {}", url.toString());
             download(url, file);
             log.info("Download complete");
+            return CertificateWrapper.fromFile(file).orElse(null);
+        } catch (CaException e) {
+            log.error(e.getMessage());
+            return null;
+        }
+    }
+
+    public CertificateWrapper importCert(String path, File file) {
+        try {
+            log.info("Importing CA file: {}", path);
+
+            try {
+
+                path = path.replace("file://resources/", "");
+                InputStream resource = new ClassPathResource(path).getInputStream();
+
+                try(FileOutputStream out = new FileOutputStream(file)) {
+                    out.write(resource.readAllBytes());
+                }
+
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                return null;
+            }
+
+            log.info("Import complete");
             return CertificateWrapper.fromFile(file).orElse(null);
         } catch (CaException e) {
             log.error(e.getMessage());

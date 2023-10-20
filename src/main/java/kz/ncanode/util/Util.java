@@ -1,9 +1,9 @@
 package kz.ncanode.util;
 
-import kz.gov.pki.kalkan.asn1.ASN1InputStream;
-import kz.gov.pki.kalkan.asn1.DERObject;
-import kz.gov.pki.kalkan.asn1.pkcs.PKCSObjectIdentifiers;
-import kz.gov.pki.kalkan.jce.provider.cms.CMSSignedDataGenerator;
+import kz.gamma.asn1.DERObject;
+import kz.gamma.asn1.ASN1InputStream;
+import kz.gamma.asn1.pkcs.PKCSObjectIdentifiers;
+import kz.gamma.cms.CMSSignedDataGenerator;
 import lombok.experimental.UtilityClass;
 import lombok.val;
 import org.slf4j.Logger;
@@ -85,18 +85,8 @@ public class Util {
     public static String getDigestAlgorithmOidBYSignAlgorithmOid(String signOid) {
         if (signOid.equals(PKCSObjectIdentifiers.sha1WithRSAEncryption.getId())) {
             return CMSSignedDataGenerator.DIGEST_SHA1;
-        }
-        else if (signOid.equals(PKCSObjectIdentifiers.sha256WithRSAEncryption.getId())) {
-            return CMSSignedDataGenerator.DIGEST_SHA256;
-        }
-        else if (signOid.equals("1.2.398.3.10.1.1.2.3.1")) { // GOST2015-256
-            return CMSSignedDataGenerator.DIGEST_GOST3411_2015_256;
-        }
-        else if (signOid.equals("1.2.398.3.10.1.1.2.3.2")) { // GOST2015-512
-            return CMSSignedDataGenerator.DIGEST_GOST3411_2015_512;
-        }
-        else {
-            return CMSSignedDataGenerator.DIGEST_GOST34311_95;
+        } else {
+            return CMSSignedDataGenerator.DIGEST_GOST3411G;
         }
     }
 

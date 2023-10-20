@@ -1,5 +1,6 @@
 package kz.ncanode.service;
 
+import kz.gamma.jce.provider.GammaTechProvider;
 import kz.gov.pki.kalkan.asn1.ASN1InputStream;
 import kz.gov.pki.kalkan.asn1.DERObject;
 import kz.gov.pki.kalkan.asn1.DEROctetString;
@@ -35,7 +36,7 @@ import java.util.*;
 @RequiredArgsConstructor
 @Service
 public class OcspService {
-    private final KalkanProvider kalkanProvider;
+    private final GammaTechProvider gammaProvider;
     private final OcspConfiguration ocspConfiguration;
     private final CloseableHttpClient client;
 
@@ -72,7 +73,7 @@ public class OcspService {
 
     private OCSPReq buildOcspRequest(BigInteger serialNumber, X509Certificate issuer, byte[] nonce) throws OCSPException {
         final OCSPReqGenerator ocspReqGenerator = new OCSPReqGenerator();
-        CertificateID certId = new CertificateID(CertificateID.HASH_SHA256, issuer, serialNumber, kalkanProvider.getName());
+        CertificateID certId = new CertificateID(CertificateID.HASH_SHA256, issuer, serialNumber, gammaProvider.getName());
         ocspReqGenerator.addRequest(certId);
         Hashtable<Object,Object> ext = new Hashtable<>();
         ext.put(OCSPObjectIdentifiers.id_pkix_ocsp_nonce, new X509Extension(false, new DEROctetString(new DEROctetString(nonce))) {});
