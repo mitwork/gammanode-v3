@@ -1,7 +1,7 @@
 package kz.ncanode.common
 
 import kz.gamma.jce.provider.GammaTechProvider
-import kz.gov.pki.kalkan.xmldsig.KncaXS
+import kz.gamma.xmldsig.JCPXMLDSigInit
 import kz.ncanode.constants.MessageConstants
 import org.apache.http.HttpEntity
 import org.apache.http.StatusLine
@@ -100,8 +100,8 @@ interface WithTestData {
         return response
     }
 
-    default void initializeKalkanLibrary() {
+    default void initializeGammaLibrary() {
         Security.addProvider(new GammaTechProvider());
-        KncaXS.loadXMLSecurity();
+        JCPXMLDSigInit.init();
     }
 }

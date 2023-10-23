@@ -13,7 +13,10 @@ import lombok.val;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.conn.ssl.TrustAllStrategy;
 import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.tomcat.util.net.SSLContext;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
@@ -225,6 +228,7 @@ public class CrlService {
     }
 
     private File download(String url, Path path) throws CrlException {
+
         try(CloseableHttpResponse response = client.execute(new HttpGet(url))) {
             int status = response.getStatusLine().getStatusCode();
 
@@ -238,10 +242,12 @@ public class CrlService {
                 throw new CrlException(String.format("Got empty request from: %s", url));
             }
 
+            byte[] crlData = Base64.getDecoder().decode(entity.getContent().readAllBytes());
+
             var file = path.toFile();
 
             try(FileOutputStream out = new FileOutputStream(file)) {
-                entity.writeTo(out);
+                out.write(crlData);
             }
 
             return file;

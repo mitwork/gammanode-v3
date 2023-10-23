@@ -16,6 +16,8 @@ RUN find /opt/TumarCSP5.2 -type f | xargs -L1 rm -f
 RUN ln -s /lib64/libcptumar.so.4.0 /lib64/libcptumar.so
 RUN ln -s /lib64/libcptumar_r.so.4.0 /lib64/libcptumar_r.so
 
+RUN update-ca-certificates
+
 WORKDIR /app
 ARG artifact=build/libs/GammaNode.jar
 COPY $artifact /app/GammaNode.jar

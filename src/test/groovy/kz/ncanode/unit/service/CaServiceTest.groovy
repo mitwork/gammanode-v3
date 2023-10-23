@@ -43,7 +43,7 @@ class CaServiceTest extends Specification implements WithTestData {
     GammaWrapper gammaWrapper
 
     def setupSpec() {
-        initializeKalkanLibrary()
+        initializeGammaLibrary()
     }
 
     def "check certificate chain validator"() {
